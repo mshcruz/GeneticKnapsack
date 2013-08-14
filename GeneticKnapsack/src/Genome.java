@@ -7,42 +7,37 @@ public class Genome implements Comparable<Genome> {
 	private float fitness;
 	private ArrayList<MenuItem> order;
 	
-	//Wight of time and value in the calculation of fitness.
-	//private static final float VALUE_WEIGHT = (float)0.9;
-	//rivate static final float TIME_WEIGHT = (float)0.1;
-
-	//Initiates a genome: the quantities of each item will be random.
+	//Initiates a genome; the quantities of each item will be random.
 	public Genome(Menu menu) {
 		super();
 		this.orderValue = 0;
 		this.orderTime = 0;
 		this.totalBudget = menu.getTotalBudget();
-		//this.order = new ArrayList<MenuItem>(menu.getItems());
 		this.order = new ArrayList<MenuItem>();
 		for (MenuItem item : menu.getItems()){
-//			MenuItem newItem = new MenuItem();
-//			newItem.setItemName(item.getItemName());
-//			newItem.setItemQuantity(item.getItemQuantity());
-//			newItem.setItemTime(item.getItemTime());
-//			newItem.setItemValue(item.getItemValue());
-//			newItem.setMaxItemQuantity(item.getMaxItemQuantity());
 			MenuItem newItem = new MenuItem(item);
 			this.order.add(newItem);
 		}
-		do {
-			for (MenuItem item : this.order) { 
-				item.randomizeQuantity();
+		for (MenuItem item : this.order) { 
+			item.randomizeQuantity();
+		}
+		this.updateGenome();
+		this.repairGenome();
+	}
+
+	//Decreases the quantity of the items until the order becomes within the budget
+	public void repairGenome(){
+		while (this.orderValue > this.totalBudget){
+			Random rand = new Random();
+			int itemToBeReduced = rand.nextInt(this.order.size());
+			if (this.order.get(itemToBeReduced).getItemQuantity() > 0){
+				this.order.get(itemToBeReduced).setItemQuantity(this.order.get(itemToBeReduced).getItemQuantity()-1);
 			}
 			this.calculateOrderValue();
-		} while (this.orderValue > this.totalBudget);
-		//Calculates the value and the time of the order, as well as the fitness of the genome
-		this.updateGenome();
-		/*for (MenuItem item : this.order){
-			System.out.println(item.getItemQuantity());
 		}
-		System.out.println();*/
+		this.updateGenome();
 	}
-	
+
 	public void updateGenome(){
 		this.calculateOrderValue();
 		this.calculateOrderTime();
@@ -82,6 +77,8 @@ public class Genome implements Comparable<Genome> {
 	    	}
 	    }
 	}
+	
+	//Compares this genome with another one. First, verifies if they have the same order. If they are different, compare their fitness values.
 	@Override
     public int compareTo(Genome genome) {
 		boolean isEqual = true;
@@ -100,6 +97,7 @@ public class Genome implements Comparable<Genome> {
 		return -1;
     }
 	
+	//Getters and Setters
 	public float getTotalBudget() {
 		return totalBudget;
 	}
@@ -139,6 +137,4 @@ public class Genome implements Comparable<Genome> {
 	public void setOrderTime(float orderTime) {
 		this.orderTime = orderTime;
 	}
-	
-	
 }

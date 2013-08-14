@@ -6,11 +6,13 @@ import java.util.Collections;
 public class GeneticKnapsack {
 	
 	//Algorithm parameters
-	private static final int POPULATION_SIZE = 10;
-	private static final int GENERATIONS = 50;
-	private static final float ELITISM_RATIO = (float)0.1;
-	private static final float MUTATION_RATIO = (float)0.1;
+	private static final int POPULATION_SIZE = 500;
+	private static final int GENERATIONS = 500;
+	private static final int ELITE_THRESHOLD = 50;
+	private static final float ELITISM_RATIO = (float)0.15;
+	private static final float MUTATION_RATIO = (float)0.4;
 	private static final float TOURNAMENT_RATIO = (float)0.1;
+	private static final float CROSSOVER_RATIO = (float)0.7;
 	
 	public static void main(String[] args) {		
 		BufferedReader br = null;
@@ -42,27 +44,19 @@ public class GeneticKnapsack {
  				population.setEliteSize(ELITISM_RATIO);
  				population.setMutationRatio(MUTATION_RATIO);
  				population.setTournamentSize(TOURNAMENT_RATIO);
- 				for (int i = 0; i < GENERATIONS; i++) {
+ 				population.setCrossoverRatio(CROSSOVER_RATIO);
+ 				for (int i = 0; (i < GENERATIONS) && !(population.eliteReachedThreshold(ELITE_THRESHOLD)); i++) { 	
  					population.selectElite();
  					population.performCrossover();
  					if (i < GENERATIONS-1) {
  						population.performMutation();
  					}
  				}
-// 				System.out.println("Elite Histogram: ");
-// 				for (HistogramBucket bucket : population.getEliteHistogram()){
-// 					System.out.print("Genome: ");
-// 					for (MenuItem item : bucket.getGenome().getOrder()){
-// 						System.out.print(item.getItemQuantity()+" ");
-// 					}
-// 					System.out.println(" - Quantity: "+bucket.getEntryCount()+" - Total time: "+bucket.getGenome().getOrderTime()+" - Total Value: "+bucket.getGenome().getOrderValue());
-// 				}
- 				
  				
  				//Selects the best individual (highest frequency in the elite histogram) and output its details
  				Collections.sort(population.getEliteHistogram(), new HistogramBucket.BucketsByValue());
  				Genome bestIndividual = population.getEliteHistogram().get(population.getEliteHistogram().size()-1).getGenome();
- 				System.out.println("**BEST SOLUTION FOUND**");
+ 				System.out.println("**CANDIDATE FOR BEST SOLUTION FOUND**");
  				System.out.println("Fitness: "+bestIndividual.getFitness());
  				System.out.println("Order value: "+bestIndividual.getOrderValue());
  				System.out.println("Order time: "+bestIndividual.getOrderTime());

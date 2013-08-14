@@ -9,6 +9,8 @@ public class Menu {
 		this.items = new ArrayList<MenuItem>();
 		this.totalBudget = totalBudget;		
 	}
+	
+	//Getters and Setters
 	public float getTotalBudget() {
 		return totalBudget;
 	}

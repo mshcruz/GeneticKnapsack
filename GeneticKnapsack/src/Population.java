@@ -8,6 +8,7 @@ public class Population {
 	private int eliteSize;
 	private int tournamentSize;
 	private float mutationRatio;
+	private float crossoverRatio;
 
 	//Initializes the population and randomly generate individuals
 	public Population(int populationSize, Menu menu) {
@@ -16,97 +17,77 @@ public class Population {
 		this.eliteSize = 0;
 		this.tournamentSize = 0;
 		this.mutationRatio = 0;
+		this.crossoverRatio = 0;
 		this.eliteIndividuals = new ArrayList<Genome>();
 		this.individuals = new ArrayList<Genome>();
 		this.eliteHistogram = new ArrayList<HistogramBucket>();
-//		System.out.println("***MONTANDO GENOME****");
 		for (int i=0; i < this.populationSize; i++) {
 			Genome genome = new Genome(menu);
-//			System.out.println("Individual "+i+":");
-//			for (MenuItem item : genome.getOrder()){
-//				System.out.println(item.getItemQuantity());
-//			}
-//			System.out.println();
 			this.individuals.add(genome);
 		}
-//		int count=0;
-//		System.out.println("***SAINDO DA MONTAGEM****");
-//		for (Genome gen : this.individuals){
-//			System.out.println("Individual "+count+":");
-//			for (MenuItem item : gen.getOrder() ) {
-//				System.out.println(item.getItemQuantity());
-//			}
-//			count++;
-//		}
-//		System.out.println();
 	}
 	
-	//Sorts individuals by fitness
-//	public void sortByFitness(){
-//		int count=0;
-//		System.out.println("***RECEBENDO EM FITNESS****");
-//		for (Genome genome : this.individuals){
-//			System.out.println("Individual "+count+":");
-//			for (MenuItem item : genome.getOrder() ) {
-//				System.out.println(item.getItemQuantity());
-//			}
-//			count++;
-//		}
-//		System.out.println();
-//		Collections.sort(this.individuals, new Genome.GenomeByFitness()); 
-//	}
-	
-	//Selects the E% best individuals
+	//Selects the best individuals based on the elite number
 	public void selectElite(){
 		Collections.sort(this.individuals, new Genome.GenomeByFitness()); 
 		this.eliteIndividuals = new ArrayList<Genome>(this.individuals.subList(this.individuals.size()-this.eliteSize, this.individuals.size()));
 		this.updateEliteHistogram();
 	}
 	
+	//Performs the crossover of the population
 	public void performCrossover(){
 		for (int j = 0; j < Double.valueOf(Math.floor((this.populationSize-this.eliteSize)/2)).intValue(); j++){
-			Genome parentX = this.selectByTournament();
-			Genome parentY = this.selectByTournament();
-			if(parentX != parentY){
-				Random rand = new Random();
-				int pointToCross = rand.nextInt(parentX.getOrder().size());
-				for (int i=pointToCross; i<parentX.getOrder().size();i++){
-					MenuItem tempItem = new MenuItem();
-					tempItem = parentX.getOrder().get(i);
-					parentX.getOrder().set(i, parentY.getOrder().get(i));
-					parentY.getOrder().set(i, tempItem);
+			Random rand = new Random();
+			if (rand.nextFloat() < this.crossoverRatio){
+				//Selects individuals by tournament
+				Genome genomeX = this.selectByTournament();
+				Genome genomeY = this.selectByTournament();
+				if(genomeX != genomeY){
+					rand = new Random();
+					//Performs the crossover at a random point
+					int pointToCross = rand.nextInt(genomeX.getOrder().size());
+					for (int i=pointToCross; i<genomeX.getOrder().size();i++){
+						MenuItem tempItem = new MenuItem();
+						tempItem = genomeX.getOrder().get(i);
+						genomeX.getOrder().set(i, genomeY.getOrder().get(i));
+						genomeY.getOrder().set(i, tempItem);
+					}
+					//Updates the orders' value, time and fitness
+					genomeX.updateGenome();
+					genomeY.updateGenome();
+					//Reduces the quantities of items until the new orders' values fit in the total budget
+					genomeX.repairGenome();
+					genomeY.repairGenome();
 				}
-				parentX.updateGenome();
-				parentY.updateGenome();
 			}
 		}
 	}
 	
+	//Evaluates if a mutation will occur for each genome and repairs the mutated individual
 	public void performMutation(){
-//		System.out.println("-Mutating~");
 		for (Genome genome : this.individuals){
 			Random rand = new Random();
 			if (rand.nextFloat() < this.mutationRatio){
-//				System.out.print("Mutating ");
-//				for (MenuItem item : genome.getOrder()){
-//					System.out.print(item.getItemQuantity()+" ");
-//				}
-				do {
-					for (MenuItem item : genome.getOrder()){
-						item.randomizeQuantity();
-					}
-					genome.updateGenome();
-				} while (genome.getOrderValue() > genome.getTotalBudget());
-//				System.out.print("to ");
-//				for (MenuItem item : genome.getOrder()){
-//					System.out.print(item.getItemQuantity()+" ");
-//				}
-//				System.out.println();
+				for (MenuItem item : genome.getOrder()){
+					item.randomizeQuantity();
+				}
+				genome.updateGenome();
+				genome.repairGenome();
 			}
 		}
 	}
 	
-	//Updates the elite histogram
+	//Checks if one individual has been selected as elite for a set number of times (threshold)
+	public boolean eliteReachedThreshold(int threshold){
+		for (HistogramBucket bucket : this.eliteHistogram){
+			if (bucket.getEntryCount() >= threshold){
+				return true;
+			}	
+		}
+		return false;
+	}
+	
+	//Updates the elite histogram based on the occurrences of the elite individuals
 	private void updateEliteHistogram(){
 		for (Genome eliteGenome : this.eliteIndividuals){
 			boolean foundInHistogram = false;
@@ -124,6 +105,7 @@ public class Population {
 		}
 	}
 	
+	//Selects two individuals by tournament (does not consider the elite individuals for the tournament)
 	private Genome selectByTournament(){
 		Random rand = new Random();
 		ArrayList<Genome> tournamentBuffer = new ArrayList<Genome>();
@@ -134,6 +116,7 @@ public class Population {
 		return tournamentBuffer.get(tournamentBuffer.size()-1);
 	}
 
+	//Getters and setters
 	public int getPopulationSize() {
 		return populationSize;
 	}
@@ -188,6 +171,14 @@ public class Population {
 
 	public void setTournamentSize(float tournamentRatio) {
 		this.tournamentSize = Double.valueOf(Math.floor(this.populationSize * tournamentRatio)).intValue();;
+	}
+
+	public float getCrossoverRatio() {
+		return crossoverRatio;
+	}
+
+	public void setCrossoverRatio(float crossoverRatio) {
+		this.crossoverRatio = crossoverRatio;
 	}
 	
 }

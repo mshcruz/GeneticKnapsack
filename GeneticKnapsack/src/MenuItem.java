@@ -25,6 +25,26 @@ public class MenuItem implements Comparable<MenuItem> {
 		this.itemQuantity = item.itemQuantity;
 		this.maxItemQuantity = item.maxItemQuantity;
 	}
+	
+	//Randomizes quantity of item
+	public void randomizeQuantity(){
+		Random rn = new Random();
+		this.itemQuantity = rn.nextInt(this.maxItemQuantity + 1);
+	}
+	
+	//Compares items by their ratios between Value and Time
+	public static class ItemsByRatio implements Comparator<MenuItem> {
+	    @Override
+	    public int compare(MenuItem item1, MenuItem item2) {
+	    	return (Float.valueOf(item1.getItemValue()/item1.getItemTime()).compareTo(Float.valueOf(item2.getItemValue()/item2.getItemTime())));
+	    }
+	}
+	@Override
+    public int compareTo(MenuItem item) {
+    	return (Float.valueOf(this.itemValue/this.itemTime).compareTo(item.getItemValue()/item.getItemTime()));
+    }
+	
+	//Getters and Setters
 	public String getItemName() {
 		return itemName;
 	}
@@ -55,20 +75,4 @@ public class MenuItem implements Comparable<MenuItem> {
 	public void setMaxItemQuantity(float totalBudget) {
 		this.maxItemQuantity = Double.valueOf(Math.floor(totalBudget/this.itemValue)).intValue();
 	}
-	//Randomizes quantity of item
-	public void randomizeQuantity(){
-		Random rn = new Random();
-		this.itemQuantity = rn.nextInt(this.maxItemQuantity + 1);
-	}
-	public static class ItemsByRatio implements Comparator<MenuItem> {
-	    @Override
-	    public int compare(MenuItem item1, MenuItem item2) {
-	    	return (Float.valueOf(item1.getItemValue()/item1.getItemTime()).compareTo(Float.valueOf(item2.getItemValue()/item2.getItemTime())));
-	    }
-	}
-	@Override
-    public int compareTo(MenuItem item) {
-    	return (Float.valueOf(this.itemValue/this.itemTime).compareTo(item.getItemValue()/item.getItemTime()));
-    }
-
 }
