@@ -6,7 +6,7 @@ Special Lectures in Computational Sciences III - Machine Learning and Evolutiona
 
 Assignment: Solve the Unbounded Knapsack Problem using Genetic Algorithms.
 Description: A group of friends goes to a restaurant with a budget specified budget. They want their order to be as close as possible to (but within) the budget. In addition, they want their order to be served as fast as possible.
- 
+
 Considerations regarding the proposed solution:
 1 - The representation of the genomes is given by a list of objects containing the item name, value, time and quantity.
 2 - The population is initialized with a random quantity for each item.
