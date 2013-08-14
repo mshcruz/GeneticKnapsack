@@ -17,3 +17,9 @@ Considerations regarding the proposed solution:
 7 - After the crossover, it is performed a mutation on the new population (which includes the elites from the previous generation and the individuals generated in the crossover process. The mutation consists in changing the quantities of items in an order.
 8 - The individuals are then repaired to guarantee that the order value is within the budget.
 9 - The steps 4~8 are repeated for a specified number of generations or until a elite individual is found a set number of times.
+
+Input: A data file must be specified as an argument (e.g.: java GeneticKnapsack ProblemSet1.csv). The file must have the following structure:
+BUDGET
+ITEM_NAME1,VALUE1,TIME1
+ITEM_NAME2,VALUE2,TIME2
+ITEM_NAME3,VALUE3,TIME3
