@@ -6,12 +6,19 @@ import java.util.Collections;
 public class GeneticKnapsack {
 	
 	//Algorithm parameters
+	//Sets how many individuals will be generated for each generation
 	private static final int POPULATION_SIZE = 500;
+	//Specifies for how many generations the algorithm will run
 	private static final int GENERATIONS = 500;
+	//Indicates that the algorithm will stop after a given individual is selected by elitism for the threshold number of times
 	private static final int ELITE_THRESHOLD = 50;
+	//Determine the amount of the population that will be selected in the elitism stage
 	private static final float ELITISM_RATIO = (float)0.15;
+	//Establish how often the individuals will be mutated 
 	private static final float MUTATION_RATIO = (float)0.4;
+	//Indicates how many individuals will be selected in the tournament
 	private static final float TOURNAMENT_RATIO = (float)0.1;
+	//Specifies how often the individuals will undergo crossover
 	private static final float CROSSOVER_RATIO = (float)0.7;
 	
 	public static void main(String[] args) {		
